@@ -1,0 +1,14 @@
+# Ignorowanie folderu z plikami kompilacji Cargo
+/target
+
+# Ignorowanie plików tymczasowych Cargo
+/.cargo
+
+# Ignorowanie pliku lock
+Cargo.lock
+
+# Ignorowanie plików tymczasowych edytora
+.DS_Store
+.vscode/
+*.log
+*.tmp
