@@ -4,3 +4,10 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+ndarray = "0.15"
+sprs = "0.11"
+nalgebra = "0.30"
+nalgebra-sparse = "0.9"
+rand = "0.8"
+autograd = "0.1" #sprawdz
+
