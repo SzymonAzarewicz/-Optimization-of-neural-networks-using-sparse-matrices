@@ -9,6 +9,9 @@ pub struct Neuron{
 pub struct Layer{
     neurons: Vec<Neuron>,
 }
+pub struct Network {
+    layers: Vec<Layer>,
+}
 
 impl Neuron{
     //inicjalizacja
@@ -44,6 +47,7 @@ impl Neuron{
          println!("  Output: {}", self.output);
      }
 }
+
 impl Layer {
     pub fn new(neurons_count: usize, inputs_count: usize) -> Self {
         let mut neurons = Vec::with_capacity(neurons_count);
@@ -52,10 +56,14 @@ impl Layer {
         }
         Layer { neurons }
     }
-    pub fn forward(&mut self, inputs: &Vec<f64>) {
+
+    pub fn forward(&mut self, inputs: &Vec<f64>)-> Vec<f64> {
+        let mut outputs = Vec::new();
         for neuron in self.neurons.iter_mut() {
             neuron.forward(inputs);
+            outputs.push(neuron.output);
         }
+        outputs
     }
     pub fn display(&self) {
         for (i, neuron) in self.neurons.iter().enumerate() {
@@ -63,8 +71,38 @@ impl Layer {
             neuron.display();
         }
     }
+
+    // pub fn get_outputs(&self) -> Vec<f64> {
+    //     let mut outputs = Vec::new();
+    //     for neuron in &self.neurons {
+    //         outputs.push(neuron.output);
+    //     }
+    //     outputs
+    // }
+    
 }
 
+impl Network{
+    pub fn new(layer_sizes: &[usize]) -> Self {
+        let mut layers = Vec::new();
+
+        for i in 0..layer_sizes.len() - 1 {
+            layers.push(Layer::new(layer_sizes[i + 1], layer_sizes[i]));
+        }
+
+        Self { layers }
+    }
+
+    pub fn forward(&mut self, inputs: Vec<f64>) -> Vec<f64> {
+        let mut activations = inputs;
+        for layer in self.layers.iter_mut() {
+            activations = layer.forward(&activations);
+        }
+        activations
+    }
+    
+    
+}
 
 pub fn get_activation_function(sum: f64) ->f64{
     println!("Choose activation function:");
