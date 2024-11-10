@@ -29,7 +29,7 @@ impl Neuron{
         Neuron { weights, bias, output}
     }
 
-    //obliczanie wyjścia
+    //obliczanie wyjścia 
     pub fn forward(&mut self, inputs: &Vec<f64>){
         let mut sum = 0.0;
         for (w, i) in self.weights.iter().zip(inputs) {
@@ -71,14 +71,6 @@ impl Layer {
             neuron.display();
         }
     }
-
-    // pub fn get_outputs(&self) -> Vec<f64> {
-    //     let mut outputs = Vec::new();
-    //     for neuron in &self.neurons {
-    //         outputs.push(neuron.output);
-    //     }
-    //     outputs
-    // }
     
 }
 

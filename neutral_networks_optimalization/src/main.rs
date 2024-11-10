@@ -1,9 +1,9 @@
 mod structure;
+
+
 //use structure::Neuron;
 //use structure::Layer;
 use structure::Network;
-use structure::NetworkVisualizer;
-
 
 fn main() {
 
