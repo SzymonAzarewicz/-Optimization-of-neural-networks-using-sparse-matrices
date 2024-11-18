@@ -10,4 +10,5 @@ nalgebra = "0.30"
 nalgebra-sparse = "0.9"
 rand = "0.8"
 autograd = "0.1" #sprawdz
-
+winapi = { version = "0.3", features = ["winuser"] }
+eframe = { version = "0.22", features = ["glow"] }

@@ -1,6 +1,16 @@
+#![allow(dead_code)]
+
+
 //source https://github.com/mathletedev
+//General Public License (GPL) wersja 3
+
 //https://www.youtube.com/watch?v=FI-8L-hobDY
-//29:19
+//38.18
+
+use rand::thread_rng;
+use rand::Rng;
+
+
 
 #[derive(Clone)]
 pub struct Matrix{
@@ -11,27 +21,35 @@ pub struct Matrix{
 
 impl Matrix{
     pub fn zeros(rows: usize, columns: usize) -> Matrix{
-       Matrix{
-        rows,
-        columns,
-        data: vec![vec[0.0, cols],rows] //macierz zerowa
-       } 
+        Matrix{
+            rows,
+            columns,
+            data: vec![vec![0.0; columns]; rows], //macierz zerowa
+        } 
     }
 
-    pub fn rand_Matrix(rows: usize, columns: usize) -> Matrix{
+    pub fn rand_matrix(rows: usize, columns: usize) -> Matrix{
         let mut rng = thread_rng();
         let mut result = Matrix::zeros(rows, columns);
 
         for i in 0..rows{
             for j in 0..columns{
-                result.data[i][j] = rng.gen::<f64>() * 2.0 -1;
+                result.data[i][j] = rng.gen::<f64>() * 2.0 - 1.0;
             }
         }
         result
     }
 
+    pub fn from(data: Vec<Vec<f64>>) -> Matrix {
+		Matrix {
+			rows: data.len(),
+			columns: data[0].len(),
+			data,
+		}
+	}
+    
     pub fn multiply(&mut self,other: &Matrix) -> Matrix{
-        if self.cols != other.rows{
+        if self.columns != other.rows{
             panic!("This matrices cannot be multiplied - check their dimensions")
         }
         let mut result = Matrix::zeros(self.rows, other.columns);
@@ -39,7 +57,7 @@ impl Matrix{
         for i in 0..self.rows{
             for j in 0..other.columns{
                 let mut sum = 0.0;
-                for k in 0..self.cols{
+                for k in 0..self.columns{
                    sum+= self.data[i][k] * other.data[k][j];
                 }
                 result.data[i][j] = sum;
@@ -63,7 +81,7 @@ impl Matrix{
     }
 
     pub fn dot_multiply(&mut self,other: &Matrix) -> Matrix{
-        if self.cols != other.rows{
+        if self.rows != other.rows || self.columns != other.columns{
             panic!("This matrices cannot be dot multiplied - check their dimensions")
         }
         let mut result = Matrix::zeros(self.rows, other.columns);
@@ -74,6 +92,7 @@ impl Matrix{
             }
         }
         result
+
     }
 
     pub fn substract(&mut self,other: &Matrix) -> Matrix{
@@ -98,14 +117,16 @@ impl Matrix{
            } 
     }
 
-    pub fn map(&self, function: &dyn Fn(f64) -> f64)-> Matrix{
-        Matrix::from(
-        (self.data)
-        .clone()
-        .into_iter()
-        .map(|row| row.into_iter().map(|value| function(value)).collect())
-        .collect()); //iteracja po row, iterator po wartościach w wierszu, stosuje function dla każdego value,wartości->wektor ,wiersze->macierz
-    }
+    pub fn map(&self, function: &dyn Fn(f64) -> f64) -> Matrix {
+    //iteracja po row, iterator po wartościach w wierszu, stosuje function dla każdego value,wartości->wektor ,wiersze->macierz
+		Matrix::from(
+			(self.data)
+				.clone()
+				.into_iter()
+				.map(|row| row.into_iter().map(|value| function(value)).collect())
+				.collect(),
+		)
+	}
 
     pub fn transpose(&mut self) -> Matrix{
         let mut result = Matrix::zeros(self.columns, self.rows);
@@ -114,7 +135,9 @@ impl Matrix{
                 result.data[j][i] = self.data[i][j];
             }
         }
+        result
+        }
     }
 
-}
+
 

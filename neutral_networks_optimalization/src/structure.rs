@@ -1,5 +1,9 @@
+#![allow(dead_code)]
+
+
 use rand::Rng;
 use std::io;
+
 
 pub struct Neuron{
     weights: Vec<f64>,
@@ -114,13 +118,13 @@ pub fn get_activation_function(sum: f64) ->f64{
         }
     } 
 }
-fn relu(i: f64) -> f64 {
+pub fn relu(i: f64) -> f64 {
     i.max(0.0)
 }
-fn sigmoid(i: f64) -> f64 {
+pub fn sigmoid(i: f64) -> f64 {
     1.0 / (1.0 + (-i).exp())
 }
-fn tanh(i: f64) -> f64 {
+pub fn tanh(i: f64) -> f64 {
     i.tanh()
 }
 
