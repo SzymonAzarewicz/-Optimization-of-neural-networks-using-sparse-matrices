@@ -3,15 +3,17 @@
 
 use std::f64::consts::E;
 
-use serde::Serialize;
+use serde::{Serialize};
+use rand::Rng;
+use std::fs;
 
 #[derive(Clone, Serialize)]
 pub struct Activation<'a> {
-	#[serde(skip)] // Pomijamy serializację funkcji
-	pub function: &'a dyn Fn(f64) -> f64,
-	#[serde(skip)] // Pomijamy serializację funkcji
-	pub derivative: &'a dyn Fn(f64) -> f64,
-	pub name: &'a str, // Nazwa funkcji aktywacji
+    #[serde(skip)] // Pomijamy serializację funkcji
+    pub function: &'a dyn Fn(f64) -> f64,
+    #[serde(skip)] // Pomijamy serializację funkcji
+    pub derivative: &'a dyn Fn(f64) -> f64,
+    pub name: &'a str, // Nazwa funkcji aktywacji
 }
 
 impl<'a> Activation<'a> {
@@ -23,9 +25,8 @@ impl<'a> Activation<'a> {
     }
 }
 
-
 pub const SIGMOID: Activation = Activation {
-	function: &|x| 1.0 / (1.0 + E.powf(-x)),
-	derivative: &|x| x * (1.0 - x),
-	name: "sigmoid",
+    function: &|x| 1.0 / (1.0 + std::f64::consts::E.powf(-x)),
+    derivative: &|x| x * (1.0 - x),
+    name: "sigmoid",
 };

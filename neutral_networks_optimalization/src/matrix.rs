@@ -10,11 +10,11 @@
 use rand::thread_rng;
 use rand::Rng;
 
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 
 
 
-#[derive(Clone, Serialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Matrix{
     rows: usize,
     pub columns: usize,

@@ -10,20 +10,23 @@
 use super::matrix::Matrix;
 use super::activations::Activation;
 
-use serde::Serialize; // Dodaj serde do serializacji
+use serde::Serialize; // Dodajemy Deserialize
+
+use std::fs;
 
 #[derive(Serialize)]
 pub struct Network2<'a>{
     layers: Vec<usize>,
     weights: Vec<Matrix>,
     biases: Vec<Matrix>,
+    #[serde(skip)] // Pomijamy podczas serializacji
     data: Vec<Matrix>,
     learning_rate: f64,
     activation: Activation<'a>
 }
 
-impl Network2<'_> {
-    pub fn new<'a>(layers: Vec<usize>, learning_rate:f64, activation: Activation<'a>) -> Network2{
+impl<'a> Network2<'a> {
+    pub fn new(layers: Vec<usize>, learning_rate:f64, activation: Activation<'a>) -> Network2{
         let mut weights = vec![];
         let mut biases = vec![];
 
@@ -34,6 +37,14 @@ impl Network2<'_> {
         Network2{layers, weights, biases, data:vec![], learning_rate, activation}
 
     }
+
+    pub fn save(&self, path: &str) -> Result<(), std::io::Error> {
+        let serialized = serde_json::to_string_pretty(self)
+            .expect("Failed to serialize network");
+        fs::write(path, serialized)?;
+        Ok(())
+    }
+
 
     pub fn feed_forward(&mut self, inputs: Vec<f64>) -> Vec<f64>{
         if inputs.len() != self.layers[0]{
