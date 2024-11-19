@@ -10,7 +10,9 @@
 use super::matrix::Matrix;
 use super::activations::Activation;
 
+use serde::Serialize; // Dodaj serde do serializacji
 
+#[derive(Serialize)]
 pub struct Network2<'a>{
     layers: Vec<usize>,
     weights: Vec<Matrix>,
