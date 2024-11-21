@@ -8,11 +8,11 @@ mod matrix;
 mod network;
 mod activations;
 
-mod fileManager;
+use crate::activations::Activation;
 
 //use eframe::egui;
 
-use activations::SIGMOID;
+//use activations::SIGMOID;
 use network::Network2;
 
 //use structure::Neuron;
@@ -25,87 +25,67 @@ mod visualiser;
 
 fn main() {
 
-     let layers = vec![2, 3,1]; // Definicja warstw (liczba neuronów w każdej warstwie)]
-
+     let layers = vec![2, 3, 1];
      let inputs = vec![
-        vec![0.0, 0.0], // (0 AND 0) -> 0
-        vec![0.0, 1.0], // (0 AND 1) -> 0
-        vec![1.0, 0.0], // (1 AND 0) -> 0
-        vec![1.0, 1.0], // (1 AND 1) -> 1
-    ];
-
-    let targets = vec![
-    vec![0.0], // Oczekiwana wartość wyjściowa
-    vec![0.0],
-    vec![0.0],
-    vec![1.0],
-    ];
-
-    let mut network = Network2::new(layers.clone(), 0.01, SIGMOID);
-
-    network.train(inputs, targets, 10000);
-
-
-     // Zapisujemy sieć do pliku JSON
+         vec![0.0, 0.0], // (0 AND 0) -> 0
+         vec![0.0, 1.0], // (0 AND 1) -> 0
+         vec![1.0, 0.0], // (1 AND 0) -> 0
+         vec![1.0, 1.0], // (1 AND 1) -> 1
+     ];
+     let targets = vec![
+         vec![0.0], // Oczekiwana wartość wyjściowa
+         vec![0.0],
+         vec![0.0],
+         vec![1.0],
+     ];
+ 
+     // 1. Stworzenie sieci i trenowanie od zera
+     let mut network = Network2::new(layers.clone(), 0.01, Activation::new("sigmoid").unwrap());
+     println!("Przed treningiem (sieć początkowa):");
+     for (i, input) in inputs.iter().enumerate() {
+         let output = network.feed_forward(input.clone());
+         println!("Input: {:?}, Expected: {:?}, Predicted: {:?}", input, targets[i], output);
+     }
+ 
+     // Trening sieci
+     network.train(inputs.clone(), targets.clone(), 10000);
+     println!("\nPo pierwszym treningu:");
+     for (i, input) in inputs.iter().enumerate() {
+         let output = network.feed_forward(input.clone());
+         println!("Input: {:?}, Expected: {:?}, Predicted: {:?}", input, targets[i], output);
+     }
+ 
+     // Zapisanie sieci do pliku
      if let Err(e) = network.save("network.json") {
          eprintln!("Failed to save network: {}", e);
+         return;
      } else {
-         println!("Network saved successfully to network.json");
+         println!("\nSieć została zapisana do pliku network.json.");
      }
+ 
+     // 2. Wczytanie sieci z pliku
+     let mut loaded_network = match Network2::load("network.json") {
+         Ok(network) => network,
+         Err(e) => {
+             eprintln!("Failed to load network: {}", e);
+             return;
+         }
+     };
+     println!("\nSieć została wczytana i gotowa do dalszego trenowania.");
+ 
+     // 3. Kontynuacja treningu
+     loaded_network.train(inputs.clone(), targets.clone(), 5000);
+     println!("\nPo dalszym trenowaniu:");
+     for (i, input) in inputs.iter().enumerate() {
+         let output = loaded_network.feed_forward(input.clone());
+         println!("Input: {:?}, Expected: {:?}, Predicted: {:?}", input, targets[i], output);
+     }
+    
+    
 
     //WIZUALIZACJA - DZIAŁA
-    
     //visualiser::run_visualiser(layers).unwrap(); // Wywołanie funkcji z visualiser.rs
     
-    // moje 111
-    // // Definiujemy rozmiary warstw w sieci: 3 wejścia, 2 warstwy ukryte (4 i 3 neurony) oraz 1 neuron wyjściowy
-    // let layer_sizes = [3, 4, 3, 1];
-
-    // // Tworzymy sieć neuronową z zadanymi rozmiarami warstw
-    // let mut network = Network::new(&layer_sizes);
-
-    // // Przykładowe dane wejściowe dla sieci (trzy wejścia)
-    // let inputs = vec![0.5, -0.3, 0.8];
-
-    // // Propagujemy dane przez całą sieć
-    // let outputs = network.forward(inputs);
-
-    // // Wyświetlamy ostateczne wyjście
-    // println!("Ostateczne wyjście z sieci: {:?}", outputs);
-
-
-    // filmm 222
-
-    // let inputs = vec![
-    //     vec![0.0, 0.0],
-    //     vec![0.0, 1.0],
-    //     vec![1.0, 0.0],
-    //     vec![1.0, 1.0],
-    // ];
-
-    // let targets = vec![
-    //     vec![0.0],
-    //     vec![1.0],
-    //     vec![1.0],
-    //     vec![0.0],
-    // ];
-
-    // let mut network = Network2::new(vec![2,3,1], 0.5,SIGMOID);
-
-
-    // println!("0 and 0: {:?}", network.feed_forward(vec![0.0, 0.0]));
-    // println!("0 and 1: {:?}", network.feed_forward(vec![0.0, 1.0]));
-    // println!("1 and 0: {:?}", network.feed_forward(vec![1.0, 0.0]));
-    // println!("1 and 1: {:?}", network.feed_forward(vec![1.0, 1.0]));
-
-    // network.train(inputs, targets, 10000);
-
-    // println!("0 and 0: {:?}", network.feed_forward(vec![0.0, 0.0]));
-    // println!("0 and 1: {:?}", network.feed_forward(vec![0.0, 1.0]));
-    // println!("1 and 0: {:?}", network.feed_forward(vec![1.0, 0.0]));
-    // println!("1 and 1: {:?}", network.feed_forward(vec![1.0, 1.0]));
-
-
 }
 
 

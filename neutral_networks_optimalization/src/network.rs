@@ -1,32 +1,30 @@
 #![allow(dead_code)]
 
-
 //source https://github.com/mathletedev
 //General Public License (GPL) wersja 3
-
-
 //use nalgebra::Vector;
 
 use super::matrix::Matrix;
 use super::activations::Activation;
 
 use serde::Serialize; // Dodajemy Deserialize
+use serde::Deserialize;
 
 use std::fs;
 
-#[derive(Serialize)]
-pub struct Network2<'a>{
+#[derive(Serialize, Deserialize)]
+pub struct Network2{
     layers: Vec<usize>,
     weights: Vec<Matrix>,
     biases: Vec<Matrix>,
     #[serde(skip)] // Pomijamy podczas serializacji
     data: Vec<Matrix>,
     learning_rate: f64,
-    activation: Activation<'a>
+    activation: Activation,
 }
 
-impl<'a> Network2<'a> {
-    pub fn new(layers: Vec<usize>, learning_rate:f64, activation: Activation<'a>) -> Network2{
+impl Network2 {
+    pub fn new(layers: Vec<usize>, learning_rate:f64, activation: Activation) -> Network2{
         let mut weights = vec![];
         let mut biases = vec![];
 
@@ -45,6 +43,12 @@ impl<'a> Network2<'a> {
         Ok(())
     }
 
+     pub fn load(path: &str) -> Result<Self, std::io::Error> {
+         let json = std::fs::read_to_string(path)?; // Wczytujemy zawartość pliku jako String
+         let network: Network2 = serde_json::from_str(&json) // Deserializujemy JSON na Network2
+             .expect("Failed to deserialize network");
+         Ok(network)
+     }
 
     pub fn feed_forward(&mut self, inputs: Vec<f64>) -> Vec<f64>{
         if inputs.len() != self.layers[0]{
@@ -58,38 +62,12 @@ impl<'a> Network2<'a> {
 			current = self.weights[i]
 				.multiply(&current)
 				.add(&self.biases[i])
-				.map(self.activation.function);
+				.map(self.activation.function());
 			self.data.push(current.clone());
 		}
 
         current.data[0].to_owned()
     }
-
-    // pub fn back_propagate(&mut self, outputs: Vec<f64>, targets: Vec<f64>){
-    //     if targets.len() != self.layers[self.layers.len()-1]{
-    //         panic!("Invalid number of targets");
-    //     }
-    //     //let mut parsed = Matrix::from(vec![outputs]);
-    //     let parsed = Matrix::from(vec![outputs]).transpose();
-    //     let mut errors = Matrix::from(vec![targets]).transpose().substract(&parsed);
-
-    //     let mut gradients = parsed.map(self.activation.derivative);
-
-    //     for i in (0..self.layers.len()-1).rev(){
-    //         println!("1");
-    //         gradients = gradients.dot_multiply(&errors).map(&|x|x * self.learning_rate);
-        
-
-    //     self.weights[i] = self.weights[i].add(&gradients.multiply(&self.data[i].transpose()));
-    //     //self.weights[i] = self.weights[i].transpose().multiply(&errors)
-    //     self.biases[i] = self.biases[i].add(&gradients);
-
-    //     errors = self.weights[i].transpose().multiply(&errors);
-    //     gradients = self.data[i].map(self.activation.derivative);
-
-    //     }
-
-    // }
 
     pub fn back_propagate(&mut self, outputs: Vec<f64>, targets: Vec<f64>) {
 		if targets.len() != self.layers[self.layers.len() - 1] {
@@ -100,7 +78,7 @@ impl<'a> Network2<'a> {
 
 		let mut errors = Matrix::from(vec![targets]).transpose().substract(&parsed);
 
-		let mut gradients = parsed.map(self.activation.derivative);
+		let mut gradients = parsed.map(self.activation.derivative());
 
 
 		for i in (0..self.layers.len() - 1).rev() {
@@ -116,22 +94,10 @@ impl<'a> Network2<'a> {
 
 			errors = self.weights[i].transpose().multiply(&errors);
 
-			gradients = self.data[i].map(self.activation.derivative);
+			gradients = self.data[i].map(self.activation.derivative());
 
 		}
 	}
-
-    // pub fn train(&mut self,inputs: Vec<Vec<f64>>, targets: Vec<Vec<f64>>, epochs:u16 ){
-    //     for i in 1..=epochs{
-    //         if epochs < 100 || i%(epochs/100) == 0{
-    //             println!("Epoch {} of {}", i,epochs);
-    //         }
-    //        for j in  0..inputs.len(){
-    //             let outputs  = self.feed_forward(inputs[j].clone());
-    //             self.back_propagate(outputs, targets[j].clone());
-    //        }
-    //     }
-    // }
 
     pub fn train(&mut self, inputs: Vec<Vec<f64>>, targets: Vec<Vec<f64>>, epochs: u16) {
 		for i in 1..=epochs {
@@ -145,9 +111,5 @@ impl<'a> Network2<'a> {
 			}
 		}
 	}
-
-    
-    
-
 
 }
